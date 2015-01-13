@@ -22,26 +22,7 @@ public class CameraActivity extends SensorsActivity {
 
         mCamera = new MyCamera();
         glSurfaceView = new MyGLSurfaceView(this, mCamera);
-
-//        LinearLayout ll = new LinearLayout(this);
-//        ll.setOrientation(LinearLayout.VERTICAL);
-//        ll.setLayoutParams(
-//                new LinearLayout.LayoutParams(
-//                        ViewGroup.LayoutParams.MATCH_PARENT,
-//                        ViewGroup.LayoutParams.MATCH_PARENT));
-//        glSurfaceView.setLayoutParams(
-//                new LinearLayout.LayoutParams(
-//                        ViewGroup.LayoutParams.MATCH_PARENT,
-//                        ViewGroup.LayoutParams.MATCH_PARENT, 1.0f));
-//        ll.addView(glSurfaceView);
-//        /*ImageView iv = new ImageView(this);
-//        iv.setLayoutParams(new LinearLayout.LayoutParams(
-//                ViewGroup.LayoutParams.MATCH_PARENT,
-//                ViewGroup.LayoutParams.MATCH_PARENT,
-//                1.0f));
-//        ll.addView(iv);*/
         setContentView(glSurfaceView);
-        //glSurfaceView.setIV(iv);
     }
 
     @Override
