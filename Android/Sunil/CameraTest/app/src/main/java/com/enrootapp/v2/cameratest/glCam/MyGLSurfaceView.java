@@ -10,6 +10,7 @@ import android.opengl.GLES20;
 import android.opengl.GLException;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -55,6 +56,8 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
     private boolean animate = false;
     private Bitmap snap;
     private boolean initialized = false;
+    private View controls;
+
 
     public MyGLSurfaceView(Context context, MyCamera camera) {
         super(context);
@@ -63,6 +66,12 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
         setEGLContextClientVersion(2);
         setOnTouchListener(this);
         setRenderer(this);
+    }
+
+
+    public MyGLSurfaceView(Context context, AttributeSet attrs) { /*IMPORTANT - this is the constructor that is used when you send your view ID in the main activity */
+        super(context, attrs);
+        mContext = (Activity) context;
     }
 
     public static int loadShader(int type, String shaderCode) {
@@ -78,12 +87,40 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
         return shader;
     }
 
+    public void setParams(MyCamera cam) {
+
+        mCamera = cam;
+        setEGLContextClientVersion(2);
+        setOnTouchListener(this);
+        setRenderer(this);
+    }
+
     @Override
-    public void onPause() {
-        super.onPause();
-        Logger.d(CameraActivity.TAG, "glview onPause");
-        initialized = false;
-        mCamera.stop();
+    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+
+    }
+
+    @Override
+    public void onSurfaceChanged(GL10 gl, int width, int height) {
+        Logger.d(LOG_TAG, "Surface Changed");
+        Logger.d(CameraActivity.TAG, "Surface Created");
+        if (!initialized) {
+            initialized = true;
+            initializeTextures();
+            this.width = width;
+            this.height = height;
+            GLES20.glViewport(0, 0, width, height);
+            mCamera.setParameters(width, height);
+            if (capture) {
+                Logger.d(CameraActivity.TAG, "Back cam");
+                mCamera.openCam(mSurface, Camera.CameraInfo.CAMERA_FACING_BACK);
+            } else {
+                Logger.d(CameraActivity.TAG, "Front cam");
+                mCamera.openCam(mSurface, Camera.CameraInfo.CAMERA_FACING_FRONT);
+            }
+
+            setIdentityM(projectionMatrix, 0);
+        }
     }
 
     @Override
@@ -101,9 +138,9 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
             //translateM(modelMatrix,0,0,0,cout);
             translateM(modelMatrix, 0, -(cout) * picX, 0f, (cout) * picZ);
             rotateM(modelMatrix, 0, -180 - picAzimuth, 0, 1, 0);
-            cout = Math.min(15f, cout + .1f);
+            cout = Math.min(10f, cout + .1f);
             Matrix.setLookAtM(viewMatrix, 0, 0, 0, 0, 0f, 0f, 3f, 0f, 1.0f, 0.0f);
-
+            MatrixHelper.perspectiveM(projectionMatrix, 45, (float) width / (float) height, 0f, 50f);
             rotateM(viewMatrix, 0, (float) MyData.getAzimuth(), 0f, 1f, 0f);
             //rotateM(viewMatrix, 0, (float) -1f * Navigation.getPitch(), 1f, 0f, 0f);
             //rotateM(viewMatrix, 0, (float) -1f * Navigation.getRoll(), 0f, 0f, 1f);
@@ -128,12 +165,13 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
             capturing = true;
             Logger.d("Enroot", "Capturing...");
             GLES20.glFlush();
+
             picZ = (float) Math.cos(Math.toRadians(MyData.getAzimuth()));
             picX = (float) Math.sin(Math.toRadians(MyData.getAzimuth()));
             picAzimuth = MyData.getAzimuth();
             snap = createBitmapFromGLSurface(0, 0, width, height);
 
-            MatrixHelper.perspectiveM(projectionMatrix, 45, (float) width / (float) height, 0f, 50f);
+
             mCamera.openCam(mBackSurface, Camera.CameraInfo.CAMERA_FACING_BACK);
             animate = true;
         }
@@ -141,26 +179,13 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
     }
 
     @Override
-    public void onSurfaceChanged(GL10 gl, int width, int height) {
-        Logger.d(LOG_TAG, "Surface Changed");
-        if (!initialized) {
-            initialized = true;
-            initializeTextures();
-            this.width = width;
-            this.height = height;
-            GLES20.glViewport(0, 0, width, height);
-            mCamera.setParameters(width, height);
-            if (capture) {
-                Logger.d(CameraActivity.TAG, "Back cam");
-                mCamera.openCam(mSurface, Camera.CameraInfo.CAMERA_FACING_BACK);
-            } else {
-                Logger.d(CameraActivity.TAG, "Front cam");
-                mCamera.openCam(mSurface, Camera.CameraInfo.CAMERA_FACING_FRONT);
-            }
-
-            setIdentityM(projectionMatrix, 0);
-        }
+    public void onPause() {
+        super.onPause();
+        Logger.d(CameraActivity.TAG, "glview onPause");
+        initialized = false;
+        mCamera.stop();
     }
+
 
     @Override
     public void onResume() {
@@ -169,6 +194,22 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
 
     }
 
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        if (!capture) {
+            mCamera.stop();
+            capture = true;
+
+            controls.setVisibility(View.GONE);
+
+            // this.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT , 1.0f));
+            // onSurfaceChanged( , width , height);
+        }
+        return true;
+    }
+
+
     public void initializeTextures() {
         int texture = createTexture();
         int backTexture = createTexture();
@@ -176,11 +217,6 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
         mDirectVideoBack = new DirectVideo(backTexture);
         mSurface = new SurfaceTexture(texture);
         mBackSurface = new SurfaceTexture(backTexture);
-    }
-
-    @Override
-    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-        Logger.d(CameraActivity.TAG, "Surface Created");
     }
 
     private int createTexture() {
@@ -200,62 +236,6 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
         Logger.d("Enroot", "TextureId: " + textures[0]);
         return textures[0];
     }
-
-    @Override
-    public boolean onTouch(View v, MotionEvent event) {
-        if (!capture) {
-            mCamera.stop();
-            //((AugmentedReality)MyData.getContext()).openCamera();
-            capture = true;
-        }
-        return true;
-    }
-
-    /*public void captureScreen() {
-        if (!capturing) {
-            capturing = true;
-            int screenshotSize = width * height;
-            ByteBuffer bb = ByteBuffer.allocateDirect(screenshotSize * 4);
-            bb.order(ByteOrder.nativeOrder());
-            GLES20.glReadPixels(0, 0, width, height, GL10.GL_RGBA,
-                    GL10.GL_UNSIGNED_BYTE, bb);
-            int pixelsBuffer[] = new int[screenshotSize];
-            bb.position(0);
-            bb.asIntBuffer().get(pixelsBuffer);
-            bb = null;
-            Bitmap bitmap = Bitmap.createBitmap(width, height,
-                    Bitmap.Config.RGB_565);
-            bitmap.setPixels(pixelsBuffer, screenshotSize - width, -width, 0,
-                    0, width, height);
-            pixelsBuffer = null;
-
-            short sBuffer[] = new short[screenshotSize];
-            ShortBuffer sb = ShortBuffer.wrap(sBuffer);
-            bitmap.copyPixelsToBuffer(sb);
-
-            // Making created bitmap (from OpenGL points) compatible with
-            // Android bitmap
-            for (int i = 0; i < screenshotSize; ++i) {
-                short v = sBuffer[i];
-                sBuffer[i] = (short) (((v & 0x1f) << 11) | (v & 0x7e0) | ((v & 0xf800) >> 11));
-            }
-            sb.rewind();
-            bitmap.copyPixelsFromBuffer(sb);
-            Bitmap copiedBitmap = bitmap.copy(Bitmap.Config.ARGB_8888, false);
-            BufferedOutputStream bos = null;
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test1234.jpeg");
-            try {
-                bos = new BufferedOutputStream(new FileOutputStream(file));
-            } catch (IOException ie) {
-                Logger.d("Enroot", "captureScreen");
-            }
-            copiedBitmap.compress(Bitmap.CompressFormat.JPEG, 75, bos);
-            bitmap.recycle();
-            copiedBitmap.recycle();
-            Logger.d("Enroot", "Finished capture");
-            animate = true;
-        }
-    }*/
 
     private Bitmap createBitmapFromGLSurface(int x, int y, int w, int h)
             throws OutOfMemoryError {
@@ -283,4 +263,12 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
         }
         return Bitmap.createBitmap(bitmapSource, w, h, Bitmap.Config.ARGB_8888);
     }
+
+    public void setControls(View view, GLSurfaceView glView) {
+
+        this.controls = view;
+
+    }
+
+
 }

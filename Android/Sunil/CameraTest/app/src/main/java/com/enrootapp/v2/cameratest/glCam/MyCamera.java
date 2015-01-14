@@ -47,6 +47,7 @@ public class MyCamera {
         try {
             mCamera.setPreviewTexture(texture);
             mCamera.startPreview();
+
             running = true;
         } catch (IOException e) {
             Logger.d(CameraActivity.TAG, "Unable to open camera.");

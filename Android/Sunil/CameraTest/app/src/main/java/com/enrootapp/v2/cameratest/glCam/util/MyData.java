@@ -3,7 +3,6 @@ package com.enrootapp.v2.cameratest.glCam.util;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.location.Location;
-import android.util.Log;
 
 import javax.microedition.khronos.opengles.GL10;
 
@@ -54,7 +53,7 @@ public abstract class MyData {
 
     private static void onLocationChanged(Location location) {
 
-        Log.v(TAG, "" + currentLocation.getLatitude());
+        //Log.v(TAG, "" + currentLocation.getLatitude());
         //MyMessages.checkForUpdates(location);
 
     }

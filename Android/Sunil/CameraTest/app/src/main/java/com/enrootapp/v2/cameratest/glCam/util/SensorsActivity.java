@@ -343,7 +343,7 @@ public class SensorsActivity extends Activity implements SensorEventListener,
     @Override
     public void onLocationChanged(Location location) {
         MyData.setCurrentLocation(location);
-        Log.v("location changed", location.toString());
+        // Log.v("location changed", location.toString());
         gmf = new GeomagneticField((float) MyData.getCurrentLocation()
                 .getLatitude(), (float) MyData.getCurrentLocation()
                 .getLongitude(), (float) MyData.getCurrentLocation()
