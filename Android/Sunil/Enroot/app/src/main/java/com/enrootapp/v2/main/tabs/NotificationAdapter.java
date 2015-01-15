@@ -12,6 +12,7 @@ import com.enrootapp.v2.main.R;
 import com.enrootapp.v2.main.data.Notification;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 /**
  * Created by sdhaker on 15-01-2015.
@@ -21,15 +22,17 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     public NotificationAdapter() {
         mDataset = new ArrayList<Notification>();
-        /*for (int i = 0; i < 10; i++) {
-            int random = Math.random();
-            Notification notification = new Notification.Builder()
-                    .setType("Geofence")
-                    .setNotification("");
-            mDataset = new Noti
+        Random r = new Random(System.currentTimeMillis());
+        for (int i = 0; i < 10; i++) {
+            String[] names = {"Sunil Dhaker", "Rahul Muttineni"};
+            String[] locations = {"Guwahati", "Delhi", "Mumbai", "Bangalore"};
+            Notification.Builder builder = new Notification.Builder()
+                    .setType((r.nextInt(1000) % 2 == 0) ? "Geofence" : "Private")
+                    .setNotification("Notification " + r.nextInt(1000))
+                    .setNotifierName(names[r.nextInt(2)])
+                    .setLocation(locations[r.nextInt(4)]);
+            mDataset.add(builder.create());
         }
-        String[] testData = {"testing card 1 ", "Testing card 2", "testing card 3"};
-        mDataset = testData;*/
     }
 
     @Override
@@ -42,7 +45,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-
+        holder.render(mDataset.get(position));
     }
 
     @Override
@@ -55,6 +58,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         private TextView notifierName;
         private TextView notification;
         private TextView timestamp;
+        private TextView location;
         private ImageView notifierPic;
 
         public ViewHolder(View v, Context context) {
@@ -64,25 +68,18 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             notifierName = (TextView) v.findViewById(R.id.notifier_name);
             notification = (TextView) v.findViewById(R.id.notification);
             timestamp = (TextView) v.findViewById(R.id.timestamp);
+            location = (TextView) v.findViewById(R.id.impression_location);
             notifierPic = (ImageView) v.findViewById(R.id.notifier_pic);
             notifierName.setVisibility(View.GONE);
         }
 
-        public void setNotifierName(String name) {
-            notifierName.setVisibility(View.VISIBLE);
-            notifierName.setText(name);
-        }
-
-        public void setNotification(String notify) {
-            notification.setText(notify);
-        }
-
-        public void setTimestamp(String ts) {
-            timestamp.setText(ts);
-        }
-
-        public void setNotifierPic(Bitmap pic) {
-            notifierPic.setImageBitmap(pic);
+        public void render(Notification notification) {
+            if (!notification.getType().equals("Geofence")) {
+                notifierName.setVisibility(View.VISIBLE);
+                notifierName.setText(notification.getNotifierName());
+            }
+            this.notification.setText(notification.getNotification());
+            location.setText(notification.getLocation());
         }
     }
 }
