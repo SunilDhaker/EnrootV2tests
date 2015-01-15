@@ -1,5 +1,13 @@
 .gradle
-/local.properties
+.idea
+build
+gradle
+build.gradle
+Enroot.iml
+gradle.properties
+gradlew
+gradlew.bat
+local.properties
 /.idea/workspace.xml
 .DS_Store
-build.gradle
+settings.gradle
