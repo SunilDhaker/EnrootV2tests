@@ -18,18 +18,6 @@ public class DirectVideo {
     // number of coordinates per vertex in this array
     private static final int COORDS_PER_VERTEX = 3;
     private final int vertexStride = COORDS_PER_VERTEX * 4; // 4 bytes per vertex
-    static float squareCoords[] = {
-            -1.0f, 1.0f, 0.0f,
-            1.0f, 1.0f, 0.0f,
-            1.0f, -1.0f, 0.0f,
-            -1.0f, -1.0f, 0.0f
-    };
-    static float textureVertices[] = {
-            0.0f, 1.0f,
-            1.0f, 1.0f,
-            1.0f, 0.0f,
-            0.0f, 0.0f,
-    };
     private final String vertexShaderCode =
             "attribute vec4 vPosition;" +
                     "uniform mat4 u_Matrix;" +
@@ -49,6 +37,18 @@ public class DirectVideo {
                     "  gl_FragColor = texture2D( s_texture, textureCoordinate );\n" +
                     "}";
     private final int mProgram;
+    float squareCoords[] = {
+            -1.0f, 1.0f, 0.0f,
+            1.0f, 1.0f, 0.0f,
+            1.0f, -1.0f, 0.0f,
+            -1.0f, -1.0f, 0.0f
+    };
+    float textureVertices[] = {
+            0.0f, 1.0f,
+            1.0f, 1.0f,
+            1.0f, 0.0f,
+            0.0f, 0.0f,
+    };
     private FloatBuffer vertexBuffer, textureVerticesBuffer;
     private ShortBuffer drawListBuffer;
     private int mPositionHandle;
@@ -68,6 +68,53 @@ public class DirectVideo {
     public DirectVideo(int texture) {
         this.texture = texture;
 
+        // initialize vertex byte buffer for shape coordinates
+        ByteBuffer bb = ByteBuffer.allocateDirect(squareCoords.length * 4);
+        bb.order(ByteOrder.nativeOrder());
+        vertexBuffer = bb.asFloatBuffer();
+        vertexBuffer.put(squareCoords);
+        vertexBuffer.position(0);
+
+        // initialize byte buffer for the draw list
+        ByteBuffer dlb = ByteBuffer.allocateDirect(drawOrder.length * 2);
+        dlb.order(ByteOrder.nativeOrder());
+        drawListBuffer = dlb.asShortBuffer();
+        drawListBuffer.put(drawOrder);
+        drawListBuffer.position(0);
+
+        ByteBuffer bb2 = ByteBuffer.allocateDirect(textureVertices.length * 4);
+        bb2.order(ByteOrder.nativeOrder());
+        textureVerticesBuffer = bb2.asFloatBuffer();
+        textureVerticesBuffer.put(textureVertices);
+        textureVerticesBuffer.position(0);
+
+        int vertexShader = MyGLSurfaceView.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        int fragmentShader = MyGLSurfaceView.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+
+        mProgram = GLES20.glCreateProgram();             // create empty OpenGL ES Program
+        GLES20.glAttachShader(mProgram, vertexShader);   // add the vertex shader to program
+        GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
+        GLES20.glLinkProgram(mProgram);                  // creates OpenGL ES program executables
+    }
+
+
+    public DirectVideo(int texture, float heightFactor) {
+        this.texture = texture;
+
+        float squareCoords1[] = {
+                -1.0f + heightFactor * 1f, 1.0f, 0.0f,
+                1.0f - heightFactor * 1f, 1.0f, 0.0f,
+                1.0f - heightFactor * 1f, -1.0f, 0.0f,
+                -1.0f + heightFactor * 1f, -1.0f, 0.0f
+        };
+        float textureVertices1[] = {
+                0.0f + heightFactor * 0.5f, 1.0f,
+                1.0f - heightFactor * 0.5f, 1.0f,
+                1.0f - heightFactor * 0.5f, 0.0f,
+                0.0f + heightFactor * 0.5f, 0.0f,
+        };
+        textureVertices = textureVertices1;
+        squareCoords = squareCoords1;
         // initialize vertex byte buffer for shape coordinates
         ByteBuffer bb = ByteBuffer.allocateDirect(squareCoords.length * 4);
         bb.order(ByteOrder.nativeOrder());
@@ -143,4 +190,6 @@ public class DirectVideo {
         }
         return result;
     }
+
+
 }

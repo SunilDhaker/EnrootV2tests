@@ -1,6 +1,5 @@
 package com.enrootapp.v2.cameratest.glCam.util;
 
-import android.app.Activity;
 import android.content.Context;
 import android.hardware.GeomagneticField;
 import android.hardware.Sensor;
@@ -11,6 +10,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.FloatMath;
 import android.util.Log;
 
@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @author Sunil Dhaker <sunil965@live.com>
  */
-public class SensorsActivity extends Activity implements SensorEventListener,
+public class SensorsActivity extends ActionBarActivity implements SensorEventListener,
         LocationListener {
 
     private static final String TAG = "SensorsActivity";

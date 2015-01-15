@@ -43,6 +43,7 @@ public class MyCamera {
         mCameraParams = mCamera.getParameters();
         mCameraParams.setPreviewSize(width, height);
         //mCameraParams.setRotation(90);
+        //mCamera.setDisplayOrientation(90);
 
         try {
             mCamera.setPreviewTexture(texture);

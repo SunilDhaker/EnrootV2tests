@@ -47,7 +47,7 @@ public class CameraActivity extends SensorsActivity {
         setContentView(R.layout.selfie_view);
         glSurfaceView = (MyGLSurfaceView) findViewById(R.id.glviewxml);
         glSurfaceView.setParams(mCamera);
-        glSurfaceView.setControls(findViewById(R.id.control_cam), glSurfaceView);
+        glSurfaceView.setControls(glSurfaceView, glSurfaceView);
     }
 
     @Override

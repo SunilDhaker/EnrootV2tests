@@ -110,7 +110,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
             this.width = width;
             this.height = height;
             GLES20.glViewport(0, 0, width, height);
-            mCamera.setParameters(width, height);
+            mCamera.setParameters(width, width);
             if (capture) {
                 Logger.d(CameraActivity.TAG, "Back cam");
                 mCamera.openCam(mSurface, Camera.CameraInfo.CAMERA_FACING_BACK);
@@ -138,7 +138,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
             //translateM(modelMatrix,0,0,0,cout);
             translateM(modelMatrix, 0, -(cout) * picX, 0f, (cout) * picZ);
             rotateM(modelMatrix, 0, -180 - picAzimuth, 0, 1, 0);
-            cout = Math.min(10f, cout + .1f);
+            cout = Math.min(7f, cout + .1f);
             Matrix.setLookAtM(viewMatrix, 0, 0, 0, 0, 0f, 0f, 3f, 0f, 1.0f, 0.0f);
             MatrixHelper.perspectiveM(projectionMatrix, 45, (float) width / (float) height, 0f, 50f);
             rotateM(viewMatrix, 0, (float) MyData.getAzimuth(), 0f, 1f, 0f);
@@ -146,6 +146,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
             //rotateM(viewMatrix, 0, (float) -1f * Navigation.getRoll(), 0f, 0f, 1f);
             //  rotateM(modelMatrix ,0,(float) MyData.getDeviceOrientationAngle() , 0f , 0f , 1f);
             rotateM(modelMatrix, 0, -90, 0f, 0f, 1f);
+            //scaleM(modelMatrix , 0 , 0.5f , 0f , 0);
             multiplyMM(temp2, 0, viewMatrix, 0, modelMatrix, 0);
             multiplyMM(temp, 0, projectionMatrix, 0, temp2, 0);
             //multiplyMM(temp2, 0, modelMatrix, 0, temp, 0);
@@ -155,6 +156,8 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
             mDirectVideoBack.draw(mtxBack, temp2);
         } else {
             rotateM(modelMatrix, 0, -90, 0f, 0f, 1f);
+            //scaleM(modelMatrix , 0 ,0,0.5f,0 );
+            translateM(modelMatrix, 0, -0.3f, 0f, 0);
             mSurface.updateTexImage();
             multiplyMM(temp, 0, projectionMatrix, 0, modelMatrix, 0);
         }
@@ -201,7 +204,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
             mCamera.stop();
             capture = true;
 
-            controls.setVisibility(View.GONE);
+            // controls.setVisibility(View.GONE);
 
             // this.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.MATCH_PARENT , 1.0f));
             // onSurfaceChanged( , width , height);
@@ -213,7 +216,7 @@ public class MyGLSurfaceView extends GLSurfaceView implements GLSurfaceView.Rend
     public void initializeTextures() {
         int texture = createTexture();
         int backTexture = createTexture();
-        mDirectVideo = new DirectVideo(texture);
+        mDirectVideo = new DirectVideo(texture, .3f);
         mDirectVideoBack = new DirectVideo(backTexture);
         mSurface = new SurfaceTexture(texture);
         mBackSurface = new SurfaceTexture(backTexture);
