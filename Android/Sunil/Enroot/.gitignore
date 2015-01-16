@@ -11,3 +11,6 @@ local.properties
 /.idea/workspace.xml
 .DS_Store
 settings.gradle
+app/app.iml
+app/build.gradle
+app/
