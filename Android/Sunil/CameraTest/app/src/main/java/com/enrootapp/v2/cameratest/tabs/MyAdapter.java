@@ -1,9 +1,12 @@
 package com.enrootapp.v2.cameratest.tabs;
 
+import android.content.Context;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.enrootapp.v2.cameratest.R;
@@ -13,20 +16,24 @@ import com.enrootapp.v2.cameratest.R;
  */
 public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private String[] mDataset;
+    public  RecyclerView rclView ;
+    public Context context ;
 
-    public MyAdapter() {
+    public MyAdapter(RecyclerView rclView , Context context) {
 
         String[] testData = {"testing card 1 ", "Testing card 2", "testing card 3"};
         mDataset = testData;
+        this.rclView = rclView ;
+
     }
 
     @Override
     public MyAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
                                                    int viewType) {
-        View v = LayoutInflater.from(parent.getContext())
+        CardView v = (CardView)LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.cardview, parent, false);
-
-        ViewHolder vh = new ViewHolder(v);
+        v.setMinimumHeight(rclView.getHeight());
+        ViewHolder vh = new ViewHolder(v );
         return vh;
     }
 
@@ -41,12 +48,19 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         return mDataset.length;
     }
 
+
+
+
+
+
     public static class ViewHolder extends RecyclerView.ViewHolder {
+
         public TextView infoText;
 
-        public ViewHolder(View v) {
+        public ViewHolder(View v ) {
             super(v);
-            //infoText = (TextView)v.findViewById(R.id.info_text);
+            infoText = (TextView)v.findViewById(R.id.cardview_impression);
+           // infoText.setWidth;
         }
     }
 }
