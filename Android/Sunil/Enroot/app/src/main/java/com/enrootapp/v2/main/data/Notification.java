@@ -9,12 +9,37 @@ public class Notification {
     private String type;
     private String notifierName;
     private String notification;
+    private String location;
     private Bitmap notifierPic;
 
     public Notification() {}
 
+    public String getType() {
+        return type;
+    }
+
+    public String getNotifierName() {
+        return notifierName;
+    }
+
+    public String getNotification() {
+        return notification;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public Bitmap getNotifierPic() {
+        return notifierPic;
+    }
+
     public void setType(String type) {
         this.type = type;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
     }
 
     public void setNotifierName(String notifierName) {
@@ -43,7 +68,10 @@ public class Notification {
         }
 
         public Builder setNotifierName(String notifierName) {
-            notification.notifierName = notifierName;
+            if (notification.type.equals("Private")) {
+                notification.notifierName = notifierName;
+            }
+
             return this;
         }
 
@@ -54,6 +82,11 @@ public class Notification {
 
         public Builder setNotifierPic(Bitmap notifierPic) {
             notification.notifierPic = notifierPic;
+            return this;
+        }
+
+        public Builder setLocation(String location) {
+            notification.location = location;
             return this;
         }
 
