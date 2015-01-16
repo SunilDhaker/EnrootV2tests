@@ -21,7 +21,7 @@ public class StaticBrowserActivity extends ActionBarActivity {
         findViewById(R.id.static_view_container);
         mRecyclerView = (RecyclerView) findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
-        mAdapter = new MyAdapter(mRecyclerView , this);
+        mAdapter = new StaticBrowserAdapter(mRecyclerView , this);
         mRecyclerView.setAdapter(mAdapter);
         mLayoutManager = new LinearLayoutManager(this);
         mLayoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
